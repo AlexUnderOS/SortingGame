@@ -1,15 +1,21 @@
 class AudioManager {
     constructor() {
         this.sounds = new Map();
+
         this.musicVolume = 0.7;
         this.sfxVolume = 0.8;
         this.isMuted = false;
+
         this.currentBackgroundMusic = null;
         this.currentAmbientSFX = null;
 
         this.audioContextUnlocked = false;
 
         this.activeSFX = new Set();
+
+        this.totalSounds = 0;
+        this.loadedSounds = 0;
+        this.allSoundsLoaded = false;
 
         this.preloadSounds();
     }
@@ -114,36 +120,61 @@ class AudioManager {
             },
             'grass-rustling-2': {
                 url: 'audio/sfx/grass-rustling-2.wav',
-                volume: .6,
+                volume: 0.6,
                 loop: false,
                 type: 'sfx'
             },
             'show-dialog': {
                 url: 'audio/sfx/show-dialog.wav',
-                volume: .6,
+                volume: 0.6,
                 loop: false,
                 type: 'sfx'
             }
         };
 
-        for (const [key, config] of Object.entries(soundConfig)) {
+        const entries = Object.entries(soundConfig);
+
+        this.totalSounds = entries.length;
+        this.loadedSounds = 0;
+        this.allSoundsLoaded = (this.totalSounds === 0);
+
+        for (const [key, config] of entries) {
             const audio = new Audio();
             audio.src = config.url;
             audio.volume = config.volume * (config.type === 'music' ? this.musicVolume : this.sfxVolume);
             audio.loop = config.loop;
             audio.preload = 'auto';
 
-            audio.addEventListener('error', (e) => {
+            const onLoaded = () => {
+                audio.removeEventListener('canplaythrough', onLoaded);
+                audio.removeEventListener('loadeddata', onLoaded);
+                audio.removeEventListener('error', onError);
+
+                this.loadedSounds++;
+                if (this.loadedSounds >= this.totalSounds) {
+                    this.allSoundsLoaded = true;
+                }
+            };
+
+            const onError = (e) => {
                 console.error(`Error loading sound ${key}:`, e, `URL: ${config.url}`);
-            });
+                onLoaded();
+            };
+
+            audio.addEventListener('canplaythrough', onLoaded);
+            audio.addEventListener('loadeddata', onLoaded);
+            audio.addEventListener('error', onError);
 
             this.sounds.set(key, {
                 audio: audio,
                 config: config
             });
         }
-
     }
+
+    // ==============================
+    //  MUSIC
+    // ==============================
 
     playBackgroundMusic(trackName = 'background-music') {
         if (this.isMuted) return;
@@ -208,6 +239,10 @@ class AudioManager {
         }
     }
 
+    // ==============================
+    //  AMBIENT
+    // ==============================
+
     playAmbientSFX(trackName = 'ambient-nature') {
         const sound = this.sounds.get(trackName);
         if (sound && sound.config.type === 'ambient') {
@@ -269,6 +304,10 @@ class AudioManager {
         }
     }
 
+    // ==============================
+    //  SFX
+    // ==============================
+
     playSFX(soundName, options = {}) {
         if (!this.sounds.has(soundName)) {
             console.warn(`Sound "${soundName}" not found in audio manager`);
@@ -306,8 +345,6 @@ class AudioManager {
         return null;
     }
 
-
-
     playShowDialog() {
         return this.playSFX('show-dialog');
     }
@@ -317,45 +354,39 @@ class AudioManager {
     playGrassRustlingLast() {
         return this.playSFX('grass-rustling-2');
     }
-
     playItemDrop() {
         return this.playSFX('item-drop');
     }
-
     playItemLand() {
         return this.playSFX('item-land');
     }
-
     playItemPickup() {
         const pickupSounds = ['item-pickup-1', 'item-pickup-2'];
         const randomSound = pickupSounds[Math.floor(Math.random() * pickupSounds.length)];
         return this.playSFX(randomSound);
     }
-
     playUIClick() {
         return this.playSFX('ui-click');
     }
-
     playGameStart() {
         return this.playSFX('game-start');
     }
-
     playGameOver() {
         return this.playSFX('game-over');
     }
-
     playCorrectSort() {
         return this.playSFX('correct-sort');
     }
-
     playWrongSort() {
         return this.playSFX('wrong-sort');
     }
-
     playOpenBin() {
         return this.playSFX('open-bin');
     }
 
+    // ==============================
+    //  VOLUME / MUTE
+    // ==============================
 
     setMusicVolume(volume) {
         this.musicVolume = Math.max(0, Math.min(1, volume));
@@ -386,7 +417,6 @@ class AudioManager {
         return this.isMuted;
     }
 
-
     setMute(muted) {
         this.isMuted = muted;
         if (muted) {
@@ -414,7 +444,6 @@ class AudioManager {
         this.activeSFX.clear();
     }
 
-
     resumeAll() {
         this.resumeAmbientSFX();
 
@@ -436,6 +465,11 @@ class AudioManager {
             this.resumeBackgroundMusic();
         }
     }
+
+    // ==============================
+    //  ADDITIONAL UTILITIES FOR THE LOADER
+    // ==============================
+
     addSound(key, config) {
         const audio = new Audio();
         audio.src = config.url;
@@ -451,20 +485,14 @@ class AudioManager {
 
     isSoundLoaded(soundName) {
         const sound = this.sounds.get(soundName);
-        return sound && sound.audio.readyState >= 2;
+        return !!(sound && sound.audio.readyState >= 2);
     }
 
     getLoadProgress() {
-        let loaded = 0;
-        let total = 0;
+        return this.totalSounds > 0 ? this.loadedSounds / this.totalSounds : 1;
+    }
 
-        for (const [key, sound] of this.sounds) {
-            total++;
-            if (sound.audio.readyState >= 2) {
-                loaded++;
-            }
-        }
-
-        return total > 0 ? loaded / total : 1;
+    areAllSoundsLoaded() {
+        return this.allSoundsLoaded;
     }
 }

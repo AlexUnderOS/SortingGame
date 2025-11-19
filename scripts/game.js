@@ -1,11 +1,5 @@
 class RecyclingGame {
     constructor() {
-
-        this.assetsLoaded = false;
-        this.loadAssets().then(() => {
-            this.assetsLoaded = true;
-        });
-
         // =========================
         //  CORE REFERENCES
         // =========================
@@ -369,6 +363,7 @@ class RecyclingGame {
             img: this.pauseButtonImg,
             action: () => this.showPauseMenu()
         };
+
         // =========================
         //  SCORE / STATS MANAGER
         // =========================
@@ -421,6 +416,13 @@ class RecyclingGame {
         // =========================
         this.sfxTimeouts = [];
 
+        // =========================
+        //  ASSETS LOADING
+        // =========================
+        this.assetsLoaded = false;
+        this.loadAssets();
+
+        this.init();
     }
 
     // =========================
@@ -433,7 +435,6 @@ class RecyclingGame {
         this.loadDifficulty();
         this.loadCustomSettings();
         this.initAudio();
-        this.assetsLoaded = true;
     }
 
     setupEventListeners() {
@@ -3078,41 +3079,101 @@ class RecyclingGame {
         return imgs;
     }
 
+    // =========================
+    //  ASSETS PRELOAD (IMAGES + AUDIO)
+    // =========================
     loadAssets() {
-        const images = this.getAllImagesForPreload();
-        if (!images.length) {
-            this.init();
-            return;
-        }
+        const images = [];
 
-        let remaining = images.length;
+        const pushImg = (img) => {
+            if (img) images.push(img);
+        };
 
-        return new Promise(resolve => {
-            const done = () => {
-                remaining--;
-                if (remaining <= 0) {
-                    resolve();
-                }
-            };
+        // все Image(), созданные в конструкторе
+        pushImg(this.tapeImg);
+        pushImg(this.infoPaperImg);
+        pushImg(this.btnStartImg);
+        pushImg(this.btnContinueImg);
+        pushImg(this.btnResetImg);
+        pushImg(this.playzoneBg);
+        pushImg(this.paperImg);
+        pushImg(this.dialogPanelImg);
+        pushImg(this.branchesTopImg);
+        pushImg(this.branchesBottomImg);
+        pushImg(this.cupImg);
+        pushImg(this.carouselArrowImg);
+        pushImg(this.pauseButtonImg);
+        pushImg(this.guideImg0);
+        pushImg(this.guideImg1);
+        pushImg(this.guideImg2);
+        pushImg(this.guideImg3);
+        pushImg(this.guideCheckedImg);
+        pushImg(this.gameOverPanelImg);
+        pushImg(this.pausePanelImg);
+        pushImg(this.guideButtonImg);
 
+        // DOM-картинки из скрытого прелоада (если они уже есть)
+        pushImg(this.mainMenuGrassImage);
+        pushImg(this.titleLeftImg);
+        pushImg(this.titleRightImg);
+
+        let loadedImages = 0;
+        const totalImages = images.length;
+
+        const checkReady = () => {
+            const imagesReady = (loadedImages >= totalImages);
+            const soundsReady = this.audioManager
+                ? this.audioManager.areAllSoundsLoaded()
+                : true;
+
+            if (imagesReady && soundsReady) {
+                this.assetsLoaded = true;
+            }
+        };
+
+        const handleOneImageDone = (img) => {
+            loadedImages++;
+            checkReady();
+        };
+
+        if (totalImages === 0) {
+            checkReady();
+        } else {
             images.forEach(img => {
-                if (!img) {
-                    done();
-                    return;
-                }
-
-                // уже загружена
-                if (img.complete) {
-                    done();
+                if (img.complete && img.naturalWidth > 0) {
+                    // уже загружено
+                    handleOneImageDone(img);
                 } else {
-                    img.addEventListener('load', done, { once: true });
-                    img.addEventListener('error', done, { once: true });
+                    const onDone = () => {
+                        img.removeEventListener('load', onDone);
+                        img.removeEventListener('error', onDone);
+                        handleOneImageDone(img);
+                    };
+                    img.addEventListener('load', onDone);
+                    img.addEventListener('error', onDone);
                 }
             });
-        }).then(() => {
-            this.init();
-        });
+        }
+
+        // На всякий случай: периодически проверяем только звуки,
+        // если, например, картинки уже все загрузились раньше.
+        const intervalId = setInterval(() => {
+            if (this.assetsLoaded) {
+                clearInterval(intervalId);
+                return;
+            }
+
+            const soundsReady = this.audioManager
+                ? this.audioManager.areAllSoundsLoaded()
+                : true;
+
+            if (soundsReady && loadedImages >= totalImages) {
+                this.assetsLoaded = true;
+                clearInterval(intervalId);
+            }
+        }, 300);
     }
+
 }
 
 // =========================

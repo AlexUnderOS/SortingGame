@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="lv">
+
+<head>
+    <meta charset="UTF-8">
+    <title>KONKURSS</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .open-game-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .open-game-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: min(100%, 960px);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            padding: 0;
+            z-index: 20;
+        }
+
+        .modal-body {
+            padding: 0;
+            flex: 1 1 auto;
+            display: flex;
+            background: #2c3e50;
+            position: relative;
+            justify-content: center;
+        }
+
+        #game-container {
+            width: 100%;
+            position: relative;
+        }
+
+        .game-aspect-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #97DAFF;
+            position: relative;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            pointer-events: none;
+        }
+
+        .mute-btn {
+            position: absolute;
+            left: 15px;
+            bottom: 15px;
+            width: 60px;
+            height: 60px;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+
+            background-image: url('images/components/music-on-btn.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+
+            z-index: 10;
+            transition: transform 0.15s ease;
+        }
+
+        .mute-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .mute-btn:active {
+            transform: scale(0.95);
+        }
+
+        .mute-btn.muted {
+            background-image: url('images/components/music-off-btn.png');
+        }
+
+
+        #image-preload {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h3>Ātrāk nospied pogu, lai sāktu spēli!</h3>
+        <button class="open-game-btn" id="openGameBtn">Spēlēt!</button>
+        <p>Autori: Ostapjuks, Pastušenko</p>
+    </div>
+
+    <!-- Game modal -->
+
+    <div class="modal-overlay" id="gameModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModalBtn">&times;</button>
+
+            <div class="modal-body">
+                <div id="game-container">
+                    <div class="game-aspect-wrapper">
+                        <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+                        <div id="ui">
+                            <div id="score">Rezultāts: 0</div>
+                        </div>
+
+                        <button id="muteButton" class="mute-btn" aria-label="Toggle music"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image preload -->
+
+    <div id="image-preload">
+        <!-- Bins -->
+        <img id="playzone-black-bin" src="images/playzone/black-bin.png" alt="Black bin" />
+        <img id="playzone-black-bin-open" src="images/playzone/black-bin-open.png" alt="Black bin open" />
+        <img id="playzone-brown-bin" src="images/playzone/brown-bin.png" alt="Brown bin" />
+        <img id="playzone-brown-bin-open" src="images/playzone/brown-bin-open.png" alt="Brown bin open" />
+        <img id="playzone-green-bin" src="images/playzone/green-bin.png" alt="Green bin" />
+        <img id="playzone-green-bin-open" src="images/playzone/green-bin-open.png" alt="Green bin open" />
+        <img id="playzone-yellow-bin" src="images/playzone/yellow-bin.png" alt="Yellow bin" />
+        <img id="playzone-yellow-bin-open" src="images/playzone/yellow-bin-open.png" alt="Yellow bin open" />
+        <img id="playzone-blue-bin" src="images/playzone/blue-bin.png" alt="Blue bin" />
+        <img id="playzone-blue-bin-open" src="images/playzone/blue-bin-open.png" alt="Blue bin open" />
+        <img id="playzone-hazard-box" src="images/playzone/hazard-box.png" alt="Hazardous waste box" />
+
+        <!-- Mini bins -->
+        <img id="mini-black-bin" src="images/playzone/mini-black-bin.png" hidden />
+        <img id="mini-yellow-bin" src="images/playzone/mini-yellow-bin.png" hidden />
+        <img id="mini-green-bin" src="images/playzone/mini-green-bin.png" hidden />
+        <img id="mini-brown-bin" src="images/playzone/mini-brown-bin.png" hidden />
+        <img id="mini-blue-bin" src="images/playzone/mini-blue-bin.png" hidden />
+        <img id="mini-orange-bin" src="images/playzone/mini-orange-bin.png" hidden />
+
+        <!-- Items -->
+        <img id="item-plastic-bottle" src="images/items/plastic-bottle.png" alt="Plastmasas pudele" hidden />
+        <img id="item-brokkoli" src="images/items/brokkoli.png" alt="Brokoļi" hidden />
+        <img id="item-cigarette" src="images/items/cigarette.png" alt="Cigarete" hidden />
+        <img id="item-perfume" src="images/items/perfume.png" alt="Parfīma flakons" hidden />
+        <img id="item-cansoda" src="images/items/cansoda.png" alt="Alumīnija dzēriena bundža" hidden />
+        <img id="item-bananapeel" src="images/items/bananapeel.png" alt="Banāna miza" hidden />
+        <img id="item-applecore" src="images/items/applecore.png" alt="Apēsta ābola serde" hidden />
+        <img id="item-brokenbottle" src="images/items/brokenbottle.png" alt="Saplīsusi stikla pudele" hidden />
+        <img id="item-thermometer" src="images/items/thermometer.png" alt="Dzīvsudraba termometrs" hidden />
+        <img id="item-plasticbag" src="images/items/plasticbag.png" alt="Plastmasas maisiņš" hidden />
+        <img id="item-bulb" src="images/items/bulb.png" alt="Spuldzīte" hidden />
+        <img id="item-eggshell" src="images/items/eggshell.png" alt="Olu čaumalas" hidden />
+        <img id="item-papercup" src="images/items/papercup.png" alt="Papīra glāzīte" hidden />
+        <img id="item-bottle" src="images/items/bottle.png" alt="Stikla pudele" hidden />
+        <img id="item-battery" src="images/items/battery.png" alt="Baterijas" hidden />
+        <img id="item-leaves" src="images/items/leaves.png" alt="Lapas" hidden />
+        <img id="item-bottlealcohol" src="images/items/bottlealcohol.png" alt="Alkohola pudele" hidden />
+        <img id="item-medicinebottle" src="images/items/medicinebottle.png" alt="Zāļu pudele" hidden />
+        <img id="item-spray" src="images/items/spray.png" alt="Krāsas baloniņš" hidden />
+        <img id="item-brokendishes" src="images/items/brokendishes.png" alt="Saplīsis šķīvis" hidden />
+        <img id="item-cartonmilk" src="images/items/cartonmilk.png" alt="Piena paka" hidden />
+        <img id="item-toyairplane" src="images/items/toyairplane.png" alt="Rotaļu lidmašīna" hidden />
+        <img id="item-candle" src="images/items/candle.png" alt="Svece" hidden />
+        <img id="item-bone" src="images/items/bone.png" alt="Kauls" hidden />
+        <img id="item-diaper" src="images/items/diaper.png" alt="Autiņš" hidden />
+        <img id="item-paper" src="images/items/paper.png" alt="Apskribelēta papīra lapa" hidden />
+        <img id="item-smartphone" src="images/items/smartphone.png" alt="Viedtālrunis" hidden />
+        <img id="item-dirtypaper" src="images/items/dirtypaper.png" alt="Netīrs papīrs" hidden />
+        <img id="item-towel" src="images/items/towel.png" alt="Dvielis" hidden>
+        <img id="item-towel" src="images/items/towel.png" alt="Dvielis" hidden>
+        <img id="item-badmushroom" src="images/items/badmushroom.png" alt="Indīgā sēne" hidden>
+        <img id="item-book" src="images/items/book.png" alt="Grāmata" hidden>
+        <img id="item-chips" src="images/items/chips.png" alt="Čipsu paka" hidden>
+        <img id="item-cucumber" src="images/items/cucumber.png" alt="Gurķis" hidden>
+        <img id="item-goodmushroom" src="images/items/goodmushroom.png" alt="Sēne" hidden>
+
+
+        <!-- Other images -->
+        <img id="star" src="images/components/star.png" alt="Star" hidden />
+        <img id="main-menu-grass" src="images/components/main-menu-grass.png" alt="Main menu grass" hidden />
+        <img id="main-menu-title-left" src="images/components/main-menu-MAC.png" alt="Title Left" hidden />
+        <img id="main-menu-title-right" src="images/components/main-menu-skirot.png" alt="Title Right" hidden />
+    </div>
+
+    <script src="scripts/audioManager.js"></script>
+    <script src="scripts/items.js"></script>
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/game.js"></script>
+
+    <script>
+        function resizeGameCanvas() {
+            const canvas = document.getElementById('gameCanvas');
+            const container = document.getElementById('game-container');
+            const modal = document.getElementById('gameModal');
+
+            if (!canvas || !container || modal.style.display !== 'flex') return;
+
+            const aspect = 540 / 960;
+            const maxWidth = container.parentElement.clientWidth;
+            const maxHeight = window.innerHeight * 0.85;
+
+            let width = maxWidth;
+            let height = width * aspect;
+
+            if (height > maxHeight) {
+                height = maxHeight;
+                width = height / aspect;
+            }
+
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+
+            container.style.width = width + 'px';
+            container.style.height = height + 'px';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('gameModal');
+            const openBtn = document.getElementById('openGameBtn');
+            const closeBtn = document.getElementById('closeModalBtn');
+            const muteBtn = document.getElementById('muteButton');
+
+            let gameInstance = null;
+
+            openBtn.addEventListener('click', () => {
+                modal.style.display = 'flex';
+
+                if (!gameInstance) {
+                    gameInstance = new RecyclingGame();
+                }
+
+                gameInstance.showMainMenu();
+                gameInstance.onModalOpen();
+
+                requestAnimationFrame(resizeGameCanvas);
+            });
+
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+                if (gameInstance) {
+                    gameInstance.onModalClose();
+                }
+            });
+
+            modal.addEventListener('click', e => {
+                if (e.target === modal) {
+                    closeBtn.click();
+                }
+            });
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && modal.style.display === 'flex') {
+                    closeBtn.click();
+                }
+            });
+
+            muteBtn.textContent = '';
+
+            muteBtn.addEventListener('click', () => {
+                if (!gameInstance || !gameInstance.audioManager) return;
+
+                const muted = gameInstance.audioManager.toggleMusicMute();
+
+                if (muted) {
+                    muteBtn.classList.add('muted');
+                } else {
+                    muteBtn.classList.remove('muted');
+                }
+            });
+
+
+            window.addEventListener('resize', resizeGameCanvas);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,5 +1,11 @@
 class RecyclingGame {
     constructor() {
+
+        this.assetsLoaded = false;
+        this.loadAssets().then(() => {
+            this.assetsLoaded = true;
+        });
+
         // =========================
         //  CORE REFERENCES
         // =========================
@@ -415,7 +421,6 @@ class RecyclingGame {
         // =========================
         this.sfxTimeouts = [];
 
-        this.init();
     }
 
     // =========================
@@ -428,6 +433,7 @@ class RecyclingGame {
         this.loadDifficulty();
         this.loadCustomSettings();
         this.initAudio();
+        this.assetsLoaded = true;
     }
 
     setupEventListeners() {
@@ -2976,6 +2982,136 @@ class RecyclingGame {
     easeOutCubic(t) {
         t = Math.max(0, Math.min(1, t));
         return 1 - Math.pow(1 - t, 3);
+    }
+
+    getAllImagesForPreload() {
+        const imgs = [];
+
+        imgs.push(
+            this.tapeImg,
+            this.infoPaperImg,
+            this.btnStartImg,
+            this.btnContinueImg,
+            this.btnResetImg,
+            this.playzoneBg,
+            this.paperImg,
+            this.dialogPanelImg,
+            this.branchesTopImg,
+            this.branchesBottomImg,
+            this.cupImg,
+            this.carouselArrowImg,
+            this.guideImg0,
+            this.guideImg1,
+            this.guideImg2,
+            this.guideImg3,
+            this.guideCheckedImg,
+            this.gameOverPanelImg,
+            this.pausePanelImg,
+            this.guideButtonImg
+        );
+
+        const domImgIds = [
+            'playzone-black-bin',
+            'playzone-black-bin-open',
+            'playzone-brown-bin',
+            'playzone-brown-bin-open',
+            'playzone-green-bin',
+            'playzone-green-bin-open',
+            'playzone-yellow-bin',
+            'playzone-yellow-bin-open',
+            'playzone-blue-bin',
+            'playzone-blue-bin-open',
+            'playzone-hazard-box',
+
+            'mini-black-bin',
+            'mini-yellow-bin',
+            'mini-green-bin',
+            'mini-brown-bin',
+            'mini-blue-bin',
+            'mini-orange-bin',
+
+            'item-plastic-bottle',
+            'item-brokkoli',
+            'item-cigarette',
+            'item-perfume',
+            'item-cansoda',
+            'item-bananapeel',
+            'item-applecore',
+            'item-brokenbottle',
+            'item-thermometer',
+            'item-plasticbag',
+            'item-bulb',
+            'item-eggshell',
+            'item-papercup',
+            'item-bottle',
+            'item-battery',
+            'item-leaves',
+            'item-bottlealcohol',
+            'item-medicinebottle',
+            'item-spray',
+            'item-brokendishes',
+            'item-cartonmilk',
+            'item-toyairplane',
+            'item-candle',
+            'item-bone',
+            'item-diaper',
+            'item-paper',
+            'item-smartphone',
+            'item-dirtypaper',
+            'item-towel',
+            'item-badmushroom',
+            'item-book',
+            'item-chips',
+            'item-cucumber',
+            'item-goodmushroom',
+
+            'star',
+            'main-menu-grass',
+            'main-menu-title-left',
+            'main-menu-title-right'
+        ];
+        domImgIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) imgs.push(el);
+        });
+
+        return imgs;
+    }
+
+    loadAssets() {
+        const images = this.getAllImagesForPreload();
+        if (!images.length) {
+            this.init();
+            return;
+        }
+
+        let remaining = images.length;
+
+        return new Promise(resolve => {
+            const done = () => {
+                remaining--;
+                if (remaining <= 0) {
+                    resolve();
+                }
+            };
+
+            images.forEach(img => {
+                if (!img) {
+                    done();
+                    return;
+                }
+
+                // уже загружена
+                if (img.complete) {
+                    done();
+                } else {
+                    img.addEventListener('load', done, { once: true });
+                    img.addEventListener('error', done, { once: true });
+                }
+            });
+        }).then(() => {
+            this.init();
+        });
     }
 }
 

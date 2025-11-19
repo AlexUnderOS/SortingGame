@@ -144,17 +144,42 @@
             background-image: url('images/components/music-off-btn.png');
         }
 
-
         #image-preload {
             display: none;
+        }
+
+        #loadingScreen {
+            position: fixed;
+            inset: 0;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            font-size: 26px;
+            z-index: 99999;
+        }
+
+        #loadingScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .loading-text {
+            text-shadow: 2px 2px 5px black;
         }
     </style>
 </head>
 
 <body>
+    <div id="loadingScreen" class="hidden">
+        <div class="loading-text">Lūdzu uzgaidiet, notiek spēles ielāde...</div>
+    </div>
     <div class="container">
         <h3>Ātrāk nospied pogu, lai sāktu spēli!</h3>
-        <button class="open-game-btn" id="openGameBtn">Spēlēt!</button>
+        <button class="open-game-btn" id="openGameBtn" disabled>Spēle ielādējas...</button>
         <p>Autori: Ostapjuks, Pastušenko</p>
     </div>
 
@@ -286,20 +311,100 @@
             const openBtn = document.getElementById('openGameBtn');
             const closeBtn = document.getElementById('closeModalBtn');
             const muteBtn = document.getElementById('muteButton');
+            const loadingScreen = document.getElementById('loadingScreen');
 
             let gameInstance = null;
+            let loaderTimer = null;
 
-            openBtn.addEventListener('click', () => {
+            muteBtn.textContent = '';
+
+            function showLoading() {
+                if (!loadingScreen) return;
+                loadingScreen.classList.remove('hidden');
+                loadingScreen.style.display = 'flex';
+            }
+
+            function hideLoading() {
+                if (!loadingScreen) return;
+                loadingScreen.classList.add('hidden');
+            }
+
+            hideLoading();
+            if (openBtn) {
+                openBtn.disabled = false;
+                openBtn.textContent = 'Spēlēt!';
+            }
+
+            function openGameModal() {
                 modal.style.display = 'flex';
+
+                if (gameInstance) {
+                    gameInstance.showMainMenu();
+                    gameInstance.onModalOpen();
+                }
+
+                requestAnimationFrame(resizeGameCanvas);
+            }
+
+            function startGameLoading() {
+                if (openBtn) {
+                    openBtn.disabled = true;
+                    openBtn.textContent = 'Spēle ielādējas...';
+                }
+
+                showLoading();
 
                 if (!gameInstance) {
                     gameInstance = new RecyclingGame();
                 }
 
-                gameInstance.showMainMenu();
-                gameInstance.onModalOpen();
+                let waited = 0;
+                const maxWaitMs = 60000;
+                const interval = 200;
 
-                requestAnimationFrame(resizeGameCanvas);
+                loaderTimer = setInterval(() => {
+                    waited += interval;
+
+                    if (gameInstance && gameInstance.assetsLoaded) {
+                        clearInterval(loaderTimer);
+                        loaderTimer = null;
+
+                        hideLoading();
+
+                        if (openBtn) {
+                            openBtn.disabled = false;
+                            openBtn.textContent = 'Spēlēt!';
+                        }
+
+                        openGameModal();
+                        return;
+                    }
+
+                    if (waited >= maxWaitMs) {
+                        clearInterval(loaderTimer);
+                        loaderTimer = null;
+
+                        hideLoading();
+
+                        if (openBtn) {
+                            openBtn.disabled = false;
+                            openBtn.textContent = 'Spēlēt!';
+                        }
+
+                        openGameModal();
+                    }
+                }, interval);
+            }
+
+            openBtn.addEventListener('click', () => {
+                if (gameInstance && gameInstance.assetsLoaded) {
+                    openGameModal();
+                    return;
+                }
+
+                if (!loaderTimer) {
+                    startGameLoading();
+                }
             });
 
             closeBtn.addEventListener('click', () => {
@@ -321,8 +426,6 @@
                 }
             });
 
-            muteBtn.textContent = '';
-
             muteBtn.addEventListener('click', () => {
                 if (!gameInstance || !gameInstance.audioManager) return;
 
@@ -335,10 +438,12 @@
                 }
             });
 
-
             window.addEventListener('resize', resizeGameCanvas);
         });
     </script>
+
+
+
 </body>
 
 </html>

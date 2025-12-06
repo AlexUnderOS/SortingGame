@@ -1969,8 +1969,8 @@ class RecyclingGame {
         const h = 30;
 
         const grad = ctx.createLinearGradient(x, y, x + w, y);
-        grad.addColorStop(0, 'rgba(0, 0, 0, 0.5)');
-        grad.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
+        grad.addColorStop(0, 'rgba(0, 0, 0, 0.5)'); // left
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0.0)'); // right
 
         ctx.fillStyle = grad;
         ctx.fillRect(x, y, w, h);
@@ -2995,102 +2995,41 @@ class RecyclingGame {
         return 1 - Math.pow(1 - t, 3);
     }
 
-    getAllImagesForPreload() {
-        const imgs = [];
-
-        imgs.push(
-            this.tapeImg,
-            this.infoPaperImg,
-            this.btnStartImg,
-            this.btnContinueImg,
-            this.btnResetImg,
-            this.playzoneBg,
-            this.paperImg,
-            this.dialogPanelImg,
-            this.branchesTopImg,
-            this.branchesBottomImg,
-            this.cupImg,
-            this.carouselArrowImg,
-            this.guideImg0,
-            this.guideImg1,
-            this.guideImg2,
-            this.guideImg3,
-            this.guideCheckedImg,
-            this.gameOverPanelImg,
-            this.pausePanelImg,
-            this.guideButtonImg
-        );
-
-        const domImgIds = [
-            'playzone-black-bin',
-            'playzone-black-bin-open',
-            'playzone-brown-bin',
-            'playzone-brown-bin-open',
-            'playzone-green-bin',
-            'playzone-green-bin-open',
-            'playzone-yellow-bin',
-            'playzone-yellow-bin-open',
-            'playzone-hazard-box',
-
-            'mini-black-bin',
-            'mini-yellow-bin',
-            'mini-green-bin',
-            'mini-brown-bin',
-            'mini-orange-bin',
-
-            'item-plastic-bottle',
-            'item-brokkoli',
-            'item-cigarette',
-            'item-perfume',
-            'item-cansoda',
-            'item-bananapeel',
-            'item-applecore',
-            'item-brokenbottle',
-            'item-thermometer',
-            'item-plasticbag',
-            'item-bulb',
-            'item-eggshell',
-            'item-papercup',
-            'item-bottle',
-            'item-battery',
-            'item-leaves',
-            'item-bottlealcohol',
-            'item-medicinebottle',
-            'item-spray',
-            'item-brokendishes',
-            'item-cartonmilk',
-            'item-toyairplane',
-            'item-candle',
-            'item-bone',
-            'item-diaper',
-            'item-paper',
-            'item-smartphone',
-            'item-dirtypaper',
-            'item-towel',
-            'item-badmushroom',
-            'item-book',
-            'item-chips',
-            'item-cucumber',
-            'item-goodmushroom',
-
-            'star',
-            'main-menu-grass',
-            'main-menu-title-left',
-            'main-menu-title-right'
-        ];
-        domImgIds.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) imgs.push(el);
-        });
-
-        return imgs;
-    }
-
     // =========================
     //  ASSETS PRELOAD (IMAGES + AUDIO)
     // =========================
     loadAssets() {
-        const images = this.getAllImagesForPreload();
+        const images = [];
+
+        const pushImg = (img) => {
+            if (img) images.push(img);
+        };
+
+        pushImg(this.tapeImg);
+        pushImg(this.infoPaperImg);
+        pushImg(this.btnStartImg);
+        pushImg(this.btnContinueImg);
+        pushImg(this.btnResetImg);
+        pushImg(this.playzoneBg);
+        pushImg(this.paperImg);
+        pushImg(this.dialogPanelImg);
+        pushImg(this.branchesTopImg);
+        pushImg(this.branchesBottomImg);
+        pushImg(this.cupImg);
+        pushImg(this.carouselArrowImg);
+        pushImg(this.pauseButtonImg);
+        pushImg(this.guideImg0);
+        pushImg(this.guideImg1);
+        pushImg(this.guideImg2);
+        pushImg(this.guideImg3);
+        pushImg(this.guideCheckedImg);
+        pushImg(this.gameOverPanelImg);
+        pushImg(this.pausePanelImg);
+        pushImg(this.guideButtonImg);
+
+        pushImg(this.mainMenuGrassImage);
+        pushImg(this.titleLeftImg);
+        pushImg(this.titleRightImg);
 
         let loadedImages = 0;
         const totalImages = images.length;
@@ -3106,7 +3045,7 @@ class RecyclingGame {
             }
         };
 
-        const handleOneImageDone = () => {
+        const handleOneImageDone = (img) => {
             loadedImages++;
             checkReady();
         };
@@ -3116,12 +3055,13 @@ class RecyclingGame {
         } else {
             images.forEach(img => {
                 if (img.complete && img.naturalWidth > 0) {
-                    handleOneImageDone();
+                    // уже загружено
+                    handleOneImageDone(img);
                 } else {
                     const onDone = () => {
                         img.removeEventListener('load', onDone);
                         img.removeEventListener('error', onDone);
-                        handleOneImageDone();
+                        handleOneImageDone(img);
                     };
                     img.addEventListener('load', onDone);
                     img.addEventListener('error', onDone);
@@ -3145,6 +3085,7 @@ class RecyclingGame {
             }
         }, 300);
     }
+
 }
 
 // =========================

@@ -83,8 +83,8 @@ class ItemManager {
             {
                 type: 'black',
                 color: '#2C2C2C',
-                name: 'Nešķirotie atkritumi',
-                x: 65,
+                name: 'Sadzīves atkritumi (nešķirotie)',
+                x: 160,
                 bottomOffset: 165,
                 width: 170,
                 imageId: 'playzone-black-bin',
@@ -96,8 +96,8 @@ class ItemManager {
             {
                 type: 'yellow',
                 color: '#FFD700',
-                name: 'Vieglie iepakojumi',
-                x: 205,
+                name: 'Plastmasas, metāla un kartona iepakojums',
+                x: 315,
                 bottomOffset: 170,
                 width: 170,
                 imageId: 'playzone-yellow-bin',
@@ -109,8 +109,8 @@ class ItemManager {
             {
                 type: 'green',
                 color: '#4CAF50',
-                name: 'Stikla iepakojums',
-                x: 367,
+                name: 'Stikla pudeles un cits stikla iepakojums',
+                x: 484,
                 bottomOffset: 170,
                 width: 158,
                 imageId: 'playzone-green-bin',
@@ -122,8 +122,8 @@ class ItemManager {
             {
                 type: 'brown',
                 color: '#8B4513',
-                name: 'Bioloģiskie atkritumi',
-                x: 515,
+                name: 'Pārtikas un citi bioloģiskie atkritumi',
+                x: 645,
                 bottomOffset: 165,
                 width: 165,
                 imageId: 'playzone-brown-bin',
@@ -132,19 +132,8 @@ class ItemManager {
                 miniImageId: 'mini-brown-bin',
                 order: 2
             },
-            {
-                type: 'blue',
-                color: '#1565C0',
-                name: 'Papīrs',
-                x: 660,
-                bottomOffset: 170,
-                width: 168,
-                imageId: 'playzone-blue-bin',
-                openImageId: 'playzone-blue-bin-open',
-                hasOpenAnimation: true,
-                miniImageId: 'mini-blue-bin',
-                order: 1
-            },
+
+            // red/orange box
             {
                 type: 'red',
                 color: '#ff9e44ff',
@@ -477,7 +466,7 @@ class ItemManager {
             },
             {
                 type: 'brown',
-                name: 'Vistu olas (čaumalas un atliekas)',
+                name: 'Vistu olas',
                 imageId: 'item-eggshell',
                 width: 0,
                 height: 0,
@@ -646,7 +635,7 @@ class ItemManager {
                 }
             },
             {
-                type: 'blue',
+                type: 'yellow',
                 name: 'Aizpildīta papīra lapa',
                 imageId: 'item-paper',
                 width: 0,
@@ -707,7 +696,7 @@ class ItemManager {
                 }
             },
             {
-                type: 'blue',
+                type: 'yellow',
                 name: 'Grāmata',
                 imageId: 'item-book',
                 width: 0,

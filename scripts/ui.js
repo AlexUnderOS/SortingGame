@@ -569,7 +569,6 @@ class UIManager {
                     yellow: 'mini-yellow-bin',
                     green: 'mini-green-bin',
                     brown: 'mini-brown-bin',
-                    blue: 'mini-blue-bin',
                     red: 'mini-orange-bin'
                 };
                 miniImgId = miniMap[correctBin.type];
@@ -650,12 +649,21 @@ class UIManager {
 
         const level = (() => {
             switch (impactLabel) {
-                case 'Kritisks': return 5;
-                case 'Ļoti augsts': return 4;
-                case 'Augsts': return 3;
-                case 'Vidēji': return 2;
-                case 'Viegli': return 1;
-                default: return 2;
+                case 'Kritisks':
+                    return 5;
+                case 'Ļoti augsts':
+                    return 4;
+
+                case 'Augsts':
+                    return 3;
+                case 'Vidējs':
+                case 'Vidēji':
+                    return 2;
+                case 'Zems':
+                case 'Viegli':
+                    return 1;
+                default:
+                    return 2;
             }
         })();
 
@@ -714,14 +722,28 @@ class UIManager {
 
     getImpactColor(impact) {
         switch (impact) {
-            case 'Kritisks': return '#c0392b';
-            case 'Ļoti augsts': return '#e74c3c';
-            case 'Augsts': return '#e67e22';
-            case 'Vidēji': return '#f39c12';
-            case 'Viegli': return '#27ae60';
-            default: return '#7f8c8d';
+            case 'Kritisks':
+                return '#c0392b';
+
+            case 'Ļoti augsts':
+                return '#e74c3c';
+
+            case 'Augsts':
+                return '#e67e22';
+
+            case 'Vidējs':
+            case 'Vidēji':
+                return '#f39c12';
+
+            case 'Zems':
+            case 'Viegli':
+                return '#27ae60';
+
+            default:
+                return '#7f8c8d';
         }
     }
+
 
     // =====================
     // Geometry / Utils

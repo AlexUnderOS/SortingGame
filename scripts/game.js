@@ -227,7 +227,7 @@ class RecyclingGame {
             custom: {
                 spawnInterval: 2000,
                 maxItems: 15,
-                name: 'Sava',
+                name: 'Ātruma izvēle',
                 durationSec: 60
             }
         };
@@ -276,7 +276,7 @@ class RecyclingGame {
                 action: () => this.startGameWithDifficulty('hard')
             },
             {
-                text: 'Sava',
+                text: 'Ātruma izvēle',
                 x: 400, y: 410,
                 width: 200, height: 50,
                 action: () => this.showCustomSettingsMenu()
@@ -1345,8 +1345,8 @@ class RecyclingGame {
             key => this.getBestScoreForDifficulty(key) !== null
         );
 
-        const baseWidth = 300;
-        const smallWidth = 180;
+        const baseWidth = 480;
+        const smallWidth = 340;
         const targetWidth = hasAnyBest ? smallWidth : baseWidth;
 
         const leftScale = targetWidth / imgL.width;
@@ -1814,7 +1814,7 @@ class RecyclingGame {
         ctx.font = 'bold 32px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('Sava sarežģītība', centerX, titleY);
+        ctx.fillText('Ātruma izvēle', centerX, titleY);
 
         this.customTimeSlider.x = centerX;
         this.spawnIntervalSlider.x = centerX;
@@ -1963,15 +1963,25 @@ class RecyclingGame {
         const ctx = this.uiManager.ctx;
         const settings = this.getCurrentDifficultySettings();
 
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(10, 40, 120, 30);
+        const x = 10;
+        const y = 40;
+        const w = 160;
+        const h = 30;
+
+        const grad = ctx.createLinearGradient(x, y, x + w, y);
+        grad.addColorStop(0, 'rgba(0, 0, 0, 0.5)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, y, w, h);
 
         ctx.fillStyle = 'white';
         ctx.font = '14px Arial';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`Pakāpe: ${settings.name}`, 20, 55);
+        ctx.fillText(`Pakāpe: ${settings.name}`, x + 10, y + h / 2);
     }
+
 
     drawPauseButton() {
         const ctx = this.uiManager.ctx;
@@ -3020,15 +3030,12 @@ class RecyclingGame {
             'playzone-green-bin-open',
             'playzone-yellow-bin',
             'playzone-yellow-bin-open',
-            'playzone-blue-bin',
-            'playzone-blue-bin-open',
             'playzone-hazard-box',
 
             'mini-black-bin',
             'mini-yellow-bin',
             'mini-green-bin',
             'mini-brown-bin',
-            'mini-blue-bin',
             'mini-orange-bin',
 
             'item-plastic-bottle',
@@ -3083,39 +3090,7 @@ class RecyclingGame {
     //  ASSETS PRELOAD (IMAGES + AUDIO)
     // =========================
     loadAssets() {
-        const images = [];
-
-        const pushImg = (img) => {
-            if (img) images.push(img);
-        };
-
-        // все Image(), созданные в конструкторе
-        pushImg(this.tapeImg);
-        pushImg(this.infoPaperImg);
-        pushImg(this.btnStartImg);
-        pushImg(this.btnContinueImg);
-        pushImg(this.btnResetImg);
-        pushImg(this.playzoneBg);
-        pushImg(this.paperImg);
-        pushImg(this.dialogPanelImg);
-        pushImg(this.branchesTopImg);
-        pushImg(this.branchesBottomImg);
-        pushImg(this.cupImg);
-        pushImg(this.carouselArrowImg);
-        pushImg(this.pauseButtonImg);
-        pushImg(this.guideImg0);
-        pushImg(this.guideImg1);
-        pushImg(this.guideImg2);
-        pushImg(this.guideImg3);
-        pushImg(this.guideCheckedImg);
-        pushImg(this.gameOverPanelImg);
-        pushImg(this.pausePanelImg);
-        pushImg(this.guideButtonImg);
-
-        // DOM-картинки из скрытого прелоада (если они уже есть)
-        pushImg(this.mainMenuGrassImage);
-        pushImg(this.titleLeftImg);
-        pushImg(this.titleRightImg);
+        const images = this.getAllImagesForPreload();
 
         let loadedImages = 0;
         const totalImages = images.length;
@@ -3131,7 +3106,7 @@ class RecyclingGame {
             }
         };
 
-        const handleOneImageDone = (img) => {
+        const handleOneImageDone = () => {
             loadedImages++;
             checkReady();
         };
@@ -3141,13 +3116,12 @@ class RecyclingGame {
         } else {
             images.forEach(img => {
                 if (img.complete && img.naturalWidth > 0) {
-                    // уже загружено
-                    handleOneImageDone(img);
+                    handleOneImageDone();
                 } else {
                     const onDone = () => {
                         img.removeEventListener('load', onDone);
                         img.removeEventListener('error', onDone);
-                        handleOneImageDone(img);
+                        handleOneImageDone();
                     };
                     img.addEventListener('load', onDone);
                     img.addEventListener('error', onDone);
@@ -3155,8 +3129,6 @@ class RecyclingGame {
             });
         }
 
-        // На всякий случай: периодически проверяем только звуки,
-        // если, например, картинки уже все загрузились раньше.
         const intervalId = setInterval(() => {
             if (this.assetsLoaded) {
                 clearInterval(intervalId);
@@ -3173,7 +3145,6 @@ class RecyclingGame {
             }
         }, 300);
     }
-
 }
 
 // =========================

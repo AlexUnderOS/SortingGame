@@ -614,6 +614,7 @@ class RecyclingGame {
         this.gameState = 'difficultyMenu';
         this.pauseGameTimers();
         this.audioManager.playUIClick();
+        this.audioManager.playAmbientSFX();
 
         if (this.difficultyPanelAnim) {
             this.difficultyPanelAnim.startTime = performance.now();

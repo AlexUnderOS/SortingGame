@@ -148,6 +148,19 @@
             display: none;
         }
 
+        .canvas-footer {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+            z-index: 5;
+        }
+
         #loadingScreen {
             position: fixed;
             inset: 0;
@@ -170,13 +183,44 @@
         .loading-text {
             text-shadow: 2px 2px 5px black;
         }
+
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .loading-logo {
+            width: 150px;
+            height: auto;
+            opacity: 0.95;
+        }
+
+        .loading-author {
+            font-size: 16px;
+            opacity: 0.85;
+        }
     </style>
 </head>
 
 <body>
     <div id="loadingScreen" class="hidden">
-        <div class="loading-text">Lūdzu uzgaidiet, notiek spēles ielāde...</div>
+        <div class="loading-content">
+
+            <img src="images/altom-games-logo.png" class="loading-logo" alt="Game Logo">
+
+            <div class="loading-author">
+                Autors: Aleksandrs Ostapjuks
+            </div>
+
+            <div class="loading-text">
+                Lūdzu uzgaidiet, notiek spēles ielāde...
+            </div>
+
+        </div>
     </div>
+
     <div class="container">
         <h3>Ātrāk nospied pogu, lai sāktu spēli!</h3>
         <button class="open-game-btn" id="openGameBtn" disabled>Spēle ielādējas...</button>
@@ -193,6 +237,10 @@
                 <div id="game-container">
                     <div class="game-aspect-wrapper">
                         <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+                        <div class="canvas-footer">
+                            SIA Liepājas RAS atkritumu šķirošanas spēle “Mācamies šķirot kopā!”
+                        </div>
 
                         <div id="ui">
                             <div id="score">Rezultāts: 0</div>

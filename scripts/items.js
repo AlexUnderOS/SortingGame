@@ -367,18 +367,6 @@ class ItemManager {
                 }
             },
             {
-                type: 'red',
-                name: 'Parfīma flakons',
-                imageId: 'item-perfume',
-                width: 0,
-                height: 0,
-                consequence: {
-                    text: 'Parfīmu atlikumi satur šķīdinātājus un smaržvielas, kas ir kaitīgas ūdens organismiem.',
-                    effect: 'Ūdens un gaisa ķīmiskais piesārņojums',
-                    impact: 'Augsts',
-                }
-            },
-            {
                 type: 'yellow',
                 name: 'Sulas vai limonādes bundža',
                 imageId: 'item-cansoda',

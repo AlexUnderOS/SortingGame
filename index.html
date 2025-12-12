@@ -20,12 +20,19 @@
         }
 
         .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
             width: 100%;
             max-width: 1200px;
+            min-height: 100vh;
         }
 
+
         .open-game-btn {
-            background-color: #3498db;
+            background-color: #008e09;
             color: white;
             border: none;
             padding: 15px 30px;
@@ -36,7 +43,7 @@
         }
 
         .open-game-btn:hover {
-            background-color: #2980b9;
+            background-color: #19a823;
         }
 
         .modal-overlay {
@@ -78,7 +85,7 @@
             padding: 0;
             flex: 1 1 auto;
             display: flex;
-            background: #2c3e50;
+            background: #184921;
             position: relative;
             justify-content: center;
         }
@@ -164,7 +171,7 @@
         #loadingScreen {
             position: fixed;
             inset: 0;
-            background: #2c3e50;
+            background: #1b371d;
             color: white;
             display: flex;
             justify-content: center;
@@ -181,7 +188,7 @@
         }
 
         .loading-text {
-            text-shadow: 2px 2px 5px black;
+            text-shadow: 2px 2px 15px black;
         }
 
         .loading-content {
@@ -198,8 +205,17 @@
         }
 
         .loading-author {
+            text-align: center;
             font-size: 16px;
             opacity: 0.85;
+        }
+
+        .loading-author .authors {
+            text-shadow: 2px 2px 7px black;
+        }
+
+        .container .authors {
+            text-align: center;
         }
     </style>
 </head>
@@ -211,7 +227,7 @@
             <img src="images/altom-games-logo.png" class="loading-logo" alt="Game Logo">
 
             <div class="loading-author">
-                Autors: Aleksandrs Ostapjuks
+                Autori: <span class="authors">Ostapjuks un Pastušenko<span>
             </div>
 
             <div class="loading-text">
@@ -224,7 +240,11 @@
     <div class="container">
         <h3>Ātrāk nospied pogu, lai sāktu spēli!</h3>
         <button class="open-game-btn" id="openGameBtn" disabled>Spēle ielādējas...</button>
-        <p>Autori: Ostapjuks, Pastušenko</p>
+        <p>Komanda <strong>Altom Games</strong></p>
+        <p class="authors">
+            Aleksandrs Ostapjuks<br>
+            Artjoms Pastušenko
+        </p>
     </div>
 
     <!-- Game modal -->
